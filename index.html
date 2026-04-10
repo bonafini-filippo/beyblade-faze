@@ -268,31 +268,16 @@
 
   /* ===== INFO ===== */
   .info-section { text-align: center; margin-top: 30px; padding: 0 10px; position: relative; }
-  .info-title {
-    font-size: 26px; font-weight: 900; letter-spacing: 3px;
+.info-date {
     font-family: 'Black Ops One', sans-serif;
-    background: linear-gradient(90deg, var(--gold), #fff, var(--gold));
-    background-size: 200% 100%;
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    animation: shimmer 3s linear infinite;
-    filter: drop-shadow(0 0 10px rgba(251,191,36,0.5));
-    line-height: 1.4;
+    font-size: 22px; color: var(--blue); margin-top: 10px; letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(0,212,255,0.5), 0 0 30px rgba(0,212,255,0.2);
   }
-  @keyframes shimmer { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
-  .info-date {
-    font-size: 14px; color: var(--blue); margin-top: 14px; letter-spacing: 2px;
-    text-shadow: 0 0 10px rgba(0,212,255,0.4);
+  .info-time {
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 16px; color: var(--gold); margin-top: 10px; letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(251,191,36,0.4), 0 0 25px rgba(251,191,36,0.2);
   }
-  .info-tagline {
-    font-size: 18px; font-weight: 700; margin-top: 18px;
-    text-shadow: 0 0 15px rgba(139,92,246,0.6), 0 0 30px rgba(0,212,255,0.3);
-    animation: tagPulse 2.5s ease-in-out infinite;
-  }
-  @keyframes tagPulse {
-    0%, 100% { text-shadow: 0 0 15px rgba(139,92,246,0.6), 0 0 30px rgba(0,212,255,0.3); }
-    50% { text-shadow: 0 0 25px rgba(139,92,246,0.9), 0 0 50px rgba(0,212,255,0.5), 0 0 80px rgba(251,191,36,0.2); }
-  }
-  .info-time { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 12px; letter-spacing: 1px; }
 
   /* ===== HYPE BADGE ===== */
   .hype-badge {
@@ -433,12 +418,10 @@
     <div class="divider"></div>
 
     <div class="info-section">
-      <div class="info-title">&#9876;&#65039; BEYBLADE<br>SHOWDOWN &#9876;&#65039;</div>
-      <div class="info-date">Mercoled&igrave; 22 Aprile 2026</div>
-      <div class="info-tagline">Let it Rip!<br>Chi sar&agrave; il campione?</div>
+      <div class="info-date">Mercoled&igrave; 22 Aprile</div>
       <div class="info-time">Ore 21:30 &bull; Faze House</div>
       <div class="hype-badge">INVITO ESCLUSIVO</div>
-      <a href="https://www.instagram.com/p/DVJX30-CGYs/" target="_blank" rel="noopener" class="reel-btn">&#9654; GUARDA LO SCONTRO</a>
+      <a href="https://www.instagram.com/p/DVJX30-CGYs/" target="_blank" rel="noopener" class="reel-btn">&#9654; GUARDA UNO SCONTRO</a>
     </div>
   </div>
 </div>
