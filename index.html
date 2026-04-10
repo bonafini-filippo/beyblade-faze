@@ -535,6 +535,7 @@
 
   // ===== AUDIO =====
   const sfx = { 1: new Audio('1.mp3'), 2: new Audio('2.mp3'), 3: new Audio('3.mp3') };
+  const spinSfx = new Audio('spin.mp3'); spinSfx.loop = true; spinSfx.volume = 0.6; spinSfx.preload = 'auto';
   for (const k in sfx) sfx[k].preload = 'auto';
 
   // ===== INTRO =====
@@ -575,6 +576,7 @@
     b2.x=90; b2.y=-20; b2.vx=-2.5; b2.vy=0.8;
     bey1El.style.opacity='1'; bey2El.style.opacity='1';
     battleStarted = true; requestAnimationFrame(battleLoop);
+    spinSfx.currentTime = 0; spinSfx.play().catch(()=>{});
     flash(300,'rgba(0,212,255,0.4)'); shake('shake-light');
   }
 
@@ -669,10 +671,12 @@
     // Zoom in sull'arena
     if(victoryFrame===1) arenaEl.classList.add('zoomed');
 
-    // Rallenta rotazione da piena velocita' a zero in ~10s (600 frame)
+    // Rallenta rotazione + audio da piena velocita' a zero in ~10s (600 frame)
     const tot=600;
     const t=Math.min(victoryFrame/tot, 1);
     const ease=(1-t)*(1-t); // decelerazione quadratica
+    spinSfx.volume = Math.max(0, 0.6 * ease);
+    if(t >= 1 && !spinSfx.paused) spinSfx.pause();
     if(loser==='bey1'){
       spinAngle2 -= SPIN2 * ease * dt;
       wI.style.transform=`rotate(${spinAngle2}deg)`;
