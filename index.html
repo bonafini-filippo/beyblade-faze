@@ -120,7 +120,15 @@
   }
 
   /* ===== ARENA ===== */
-  .arena { position: relative; width: 340px; height: 340px; margin: 10px auto 20px; flex-shrink: 0; }
+  .arena {
+    position: relative; width: 340px; height: 340px; margin: 10px auto 20px; flex-shrink: 0;
+    transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 10;
+  }
+  .arena.zoomed {
+    transform: scale(2.2) translateY(15%);
+    z-index: 50;
+  }
   .stadium-ring {
     position: absolute; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%);
   }
@@ -426,7 +434,7 @@
   const viewport = $('viewport'), introOverlay = $('introOverlay');
   const introReady = $('introReady'), introCount = $('introCount'), introLaunch = $('introLaunch');
   const speedLinesEl = $('speedLines'), fullFlash = $('fullFlash'), mainContent = $('mainContent');
-  const bey1El = $('bey1'), bey2El = $('bey2');
+  const bey1El = $('bey1'), bey2El = $('bey2'), arenaEl = $('arena');
   const impactText = $('impactText'), clashLayer = $('clashLayer');
   const battleCanvas = $('battleCanvas'), bCtx = battleCanvas.getContext('2d');
 
@@ -634,6 +642,10 @@
     victoryFrame++;
     const wb=loser==='bey1'?b2:b1, wE=loser==='bey1'?bey2El:bey1El, wI=wE.querySelector('img');
     wb.x*=0.97; wb.y*=0.97; wE.style.transform=`translate(${wb.x}px,${wb.y}px)`;
+
+    // Zoom in sull'arena gradualmente
+    if(victoryFrame===1) arenaEl.classList.add('zoomed');
+
     const tot=600; if(victoryFrame<tot){const t=victoryFrame/tot,e=1-t*t;
       const sp=victorySpinSpeed/60*e;
       if(loser==='bey1'){spinAngle2+=sp;wI.style.transform=`rotate(${spinAngle2}deg)`;}
