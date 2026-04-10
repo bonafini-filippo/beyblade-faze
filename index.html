@@ -577,12 +577,15 @@
     if(!battleStarted) return;
     if(!lastFT) lastFT=ts;
     const dt=Math.min((ts-lastFT)/1000,0.05); lastFT=ts;
-    spinAngle1+=SPIN1*dt; spinAngle2-=SPIN2*dt;
-    bey1El.querySelector('img').style.transform=`rotate(${spinAngle1}deg)`;
-    bey2El.querySelector('img').style.transform=`rotate(${spinAngle2}deg)`;
+    // Spin automatico solo durante fight e knockout
+    if(battlePhase!=='victory') {
+      spinAngle1+=SPIN1*dt; spinAngle2-=SPIN2*dt;
+      bey1El.querySelector('img').style.transform=`rotate(${spinAngle1}deg)`;
+      bey2El.querySelector('img').style.transform=`rotate(${spinAngle2}deg)`;
+    }
     if(battlePhase==='fighting') updateFight();
     else if(battlePhase==='knockout') updateKO();
-    else if(battlePhase==='victory') updateVic();
+    else if(battlePhase==='victory') updateVic(dt);
     drawFX(); requestAnimationFrame(battleLoop);
   }
 
@@ -637,7 +640,7 @@
     if(knockoutFrame>90){battlePhase='victory';victoryFrame=0;victorySpinSpeed=loser==='bey1'?-SPIN2:SPIN1;}
   }
 
-  function updateVic() {
+  function updateVic(dt) {
     victoryFrame++;
     const wb=loser==='bey1'?b2:b1, wE=loser==='bey1'?bey2El:bey1El, wI=wE.querySelector('img');
     wb.x*=0.97; wb.y*=0.97; wE.style.transform=`translate(${wb.x}px,${wb.y}px)`;
@@ -648,10 +651,9 @@
     // Rallenta rotazione da piena velocita' a zero in ~10s (600 frame)
     const tot=600;
     const t=Math.min(victoryFrame/tot, 1);
-    const ease=1-t*t; // decelerazione quadratica
-    const dt=Math.min((performance.now()-lastFT)/1000, 0.05);
+    const ease=(1-t)*(1-t); // decelerazione quadratica
     if(loser==='bey1'){
-      spinAngle2 += SPIN2 * ease * dt;
+      spinAngle2 -= SPIN2 * ease * dt;
       wI.style.transform=`rotate(${spinAngle2}deg)`;
     } else {
       spinAngle1 += SPIN1 * ease * dt;
