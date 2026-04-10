@@ -309,6 +309,21 @@
     50% { box-shadow: 0 0 35px rgba(251,191,36,0.35), 0 0 60px rgba(255,60,92,0.15); transform: scale(1.02); }
   }
 
+  .reel-btn {
+    display: inline-block; margin-top: 20px; padding: 14px 32px; border-radius: 12px;
+    font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase; text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, var(--red), var(--purple));
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 0 20px rgba(255,59,92,0.3), 0 0 40px rgba(139,92,246,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .reel-btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 0 30px rgba(255,59,92,0.5), 0 0 60px rgba(139,92,246,0.3);
+  }
+
   /* ===== DIVIDER ===== */
   .divider {
     width: 220px; height: 2px; margin: 22px auto; position: relative;
@@ -423,6 +438,7 @@
       <div class="info-tagline">Let it Rip!<br>Chi sar&agrave; il campione?</div>
       <div class="info-time">Ore 21:30 &bull; Faze House</div>
       <div class="hype-badge">INVITO ESCLUSIVO</div>
+      <a href="https://www.instagram.com/p/DVJX30-CGYs/" target="_blank" rel="noopener" class="reel-btn">&#9654; GUARDA LO SCONTRO</a>
     </div>
   </div>
 </div>
