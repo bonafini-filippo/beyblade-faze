@@ -557,13 +557,10 @@
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   // ===== AUDIO =====
-  const sfx1 = new Audio('1.mp3');
   const sfx2 = new Audio('2.mp3');
-  const sfx3 = new Audio('3.mp3');
-  const spinSfx = new Audio('spin.mp3'); spinSfx.loop = true; spinSfx.volume = 0.6;
   const bgm = new Audio('bgm.mp3'); bgm.loop = true; bgm.volume = 0.1;
   const boomSfx = new Audio('boom.mp3');
-  const allAudio = [sfx1, sfx2, sfx3, spinSfx, bgm, boomSfx];
+  const allAudio = [sfx2, bgm, boomSfx];
   allAudio.forEach(a => a.preload = 'auto');
 
   function playAudio(a) { a.currentTime = 0; a.play(); }
@@ -573,7 +570,6 @@
     await delay(400); introIntensity = 0.4;
     bgm.volume = 0.1; bgm.play();
     shake('shake-light'); createSpeedLines(15,1500); introIntensity = 0.8;
-    playAudio(sfx1);
     await showAnimeText(introReady,'PRONTI...','#00d4ff',56,2000);
     await delay(300); introIntensity = 1.2;
     for (let n=3; n>=1; n--) {
@@ -584,7 +580,6 @@
       await showAnimeText(introCount,n.toString(),'#00d4ff',80,1000);
       await delay(150);
     }
-    playAudio(sfx3);
     bgm.volume = 0.5;
     introIntensity = 4; shake('shake-heavy'); createSpeedLines(40,800);
     introLaunch.animate([
@@ -609,7 +604,6 @@
     b2.x=90; b2.y=-20; b2.vx=-2.5; b2.vy=0.8;
     bey1El.style.opacity='1'; bey2El.style.opacity='1';
     battleStarted = true; requestAnimationFrame(battleLoop);
-    spinSfx.currentTime = 0; spinSfx.play();
     flash(300,'rgba(0,212,255,0.4)'); shake('shake-light');
   }
 
@@ -708,8 +702,6 @@
     const tot=600;
     const t=Math.min(victoryFrame/tot, 1);
     const ease=(1-t)*(1-t); // decelerazione quadratica
-    spinSfx.volume = Math.max(0, 0.6 * ease);
-    if(t >= 1 && !spinSfx.paused) spinSfx.pause();
     if(loser==='bey1'){
       spinAngle2 -= SPIN2 * ease * dt;
       wI.style.transform=`rotate(${spinAngle2}deg)`;
