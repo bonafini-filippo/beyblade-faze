@@ -525,7 +525,7 @@
     for (let n=3; n>=1; n--) {
       introIntensity = 1.2+(3-n)*0.8; shake('shake-light');
       flash(200,'rgba(0,212,255,0.3)');
-      await showAnimeText(introCount,n.toString(),'#fff',80,1000);
+      await showAnimeText(introCount,n.toString(),'#00d4ff',80,1000);
       await delay(150);
     }
     introIntensity = 4; shake('shake-heavy'); createSpeedLines(40,800);
