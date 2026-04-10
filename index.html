@@ -126,7 +126,7 @@
     z-index: 10;
   }
   .arena.zoomed {
-    transform: scale(2.2) translateY(15%);
+    transform: scale(2.2);
     z-index: 50;
   }
   .stadium-ring {
@@ -659,13 +659,21 @@
     const wb=loser==='bey1'?b2:b1, wE=loser==='bey1'?bey2El:bey1El, wI=wE.querySelector('img');
     wb.x*=0.97; wb.y*=0.97; wE.style.transform=`translate(${wb.x}px,${wb.y}px)`;
 
-    // Zoom in sull'arena gradualmente
+    // Zoom in sull'arena
     if(victoryFrame===1) arenaEl.classList.add('zoomed');
 
-    const tot=600; if(victoryFrame<tot){const t=victoryFrame/tot,e=1-t*t;
-      const sp=victorySpinSpeed/60*e;
-      if(loser==='bey1'){spinAngle2+=sp;wI.style.transform=`rotate(${spinAngle2}deg)`;}
-      else{spinAngle1+=sp;wI.style.transform=`rotate(${spinAngle1}deg)`;}}
+    // Rallenta rotazione da piena velocita' a zero in ~10s (600 frame)
+    const tot=600;
+    const t=Math.min(victoryFrame/tot, 1);
+    const ease=1-t*t; // decelerazione quadratica
+    const dt=Math.min((performance.now()-lastFT)/1000, 0.05);
+    if(loser==='bey1'){
+      spinAngle2 += SPIN2 * ease * dt;
+      wI.style.transform=`rotate(${spinAngle2}deg)`;
+    } else {
+      spinAngle1 += SPIN1 * ease * dt;
+      wI.style.transform=`rotate(${spinAngle1}deg)`;
+    }
   }
 
   function wallB(b,r){const d=Math.sqrt(b.x*b.x+b.y*b.y),lim=ARENA_R-r;if(d>lim&&d>0){
