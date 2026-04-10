@@ -533,18 +533,25 @@
   }
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+  // ===== AUDIO =====
+  const sfx = { 1: new Audio('1.mp3'), 2: new Audio('2.mp3'), 3: new Audio('3.mp3') };
+  for (const k in sfx) sfx[k].preload = 'auto';
+
   // ===== INTRO =====
   async function playIntro() {
     await delay(600); introIntensity = 0.4;
     shake('shake-light'); createSpeedLines(15,1500); introIntensity = 0.8;
+    sfx[1].play().catch(()=>{});
     await showAnimeText(introReady,'PRONTI...','#00d4ff',56,2000);
     await delay(300); introIntensity = 1.2;
     for (let n=3; n>=1; n--) {
       introIntensity = 1.2+(3-n)*0.8; shake('shake-light');
       flash(200,'rgba(0,212,255,0.3)');
+      sfx[2].currentTime = 0; sfx[2].play().catch(()=>{});
       await showAnimeText(introCount,n.toString(),'#00d4ff',80,1000);
       await delay(150);
     }
+    sfx[3].play().catch(()=>{});
     introIntensity = 4; shake('shake-heavy'); createSpeedLines(40,800);
     introLaunch.animate([
       {opacity:0,transform:'translate(-50%,-50%) scale(5) rotate(-10deg)',filter:'blur(20px)'},
