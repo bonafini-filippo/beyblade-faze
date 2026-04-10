@@ -63,6 +63,23 @@
   #particles { z-index: 1; }
   #introCanvas { z-index: 1; }
 
+  /* ===== TAP TO START ===== */
+  .tap-screen {
+    position: fixed; inset: 0; z-index: 300;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center, #0a0e27 0%, #000 70%);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .tap-screen.hidden { display: none; }
+  .tap-logo { width: 200px; margin-bottom: 30px; animation: logoPulse 2s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(0,212,255,0.5)); }
+  .tap-text {
+    font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--blue); letter-spacing: 4px; text-transform: uppercase;
+    animation: tapBlink 1.5s ease-in-out infinite;
+    text-shadow: 0 0 15px rgba(0,212,255,0.5);
+  }
+  @keyframes tapBlink { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
   /* ===== INTRO ===== */
   .intro-overlay {
     position: fixed; inset: 0; z-index: 200;
@@ -363,6 +380,12 @@
 </head>
 <body>
 
+<!-- TAP TO START -->
+<div class="tap-screen" id="tapScreen">
+  <img src="logo.png" class="tap-logo" alt="Beyblade">
+  <div class="tap-text">Tocca per iniziare</div>
+</div>
+
 <!-- INTRO -->
 <div class="intro-overlay" id="introOverlay">
   <div class="intro-nebula"></div>
@@ -534,28 +557,34 @@
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   // ===== AUDIO =====
-  const sfx = { 1: new Audio('1.mp3'), 2: new Audio('2.mp3'), 3: new Audio('3.mp3') };
-  const spinSfx = new Audio('spin.mp3'); spinSfx.loop = true; spinSfx.volume = 0.6; spinSfx.preload = 'auto';
-  const bgm = new Audio('bgm.mp3'); bgm.loop = true; bgm.volume = 0.15; bgm.preload = 'auto';
-  for (const k in sfx) sfx[k].preload = 'auto';
+  const sfx1 = new Audio('1.mp3');
+  const sfx2 = new Audio('2.mp3');
+  const sfx3 = new Audio('3.mp3');
+  const spinSfx = new Audio('spin.mp3'); spinSfx.loop = true; spinSfx.volume = 0.6;
+  const bgm = new Audio('bgm.mp3'); bgm.loop = true; bgm.volume = 0.1;
+  const boomSfx = new Audio('boom.mp3');
+  const allAudio = [sfx1, sfx2, sfx3, spinSfx, bgm, boomSfx];
+  allAudio.forEach(a => a.preload = 'auto');
+
+  function playAudio(a) { a.currentTime = 0; a.play(); }
 
   // ===== INTRO =====
   async function playIntro() {
-    await delay(600); introIntensity = 0.4;
-    bgm.volume = 0.1; bgm.play().catch(()=>{});
+    await delay(400); introIntensity = 0.4;
+    bgm.volume = 0.1; bgm.play();
     shake('shake-light'); createSpeedLines(15,1500); introIntensity = 0.8;
-    sfx[1].play().catch(()=>{});
+    playAudio(sfx1);
     await showAnimeText(introReady,'PRONTI...','#00d4ff',56,2000);
     await delay(300); introIntensity = 1.2;
     for (let n=3; n>=1; n--) {
       introIntensity = 1.2+(3-n)*0.8; shake('shake-light');
       bgm.volume = 0.15 + (3-n) * 0.1;
       flash(200,'rgba(0,212,255,0.3)');
-      sfx[2].currentTime = 0; sfx[2].play().catch(()=>{});
+      playAudio(sfx2);
       await showAnimeText(introCount,n.toString(),'#00d4ff',80,1000);
       await delay(150);
     }
-    sfx[3].play().catch(()=>{});
+    playAudio(sfx3);
     bgm.volume = 0.5;
     introIntensity = 4; shake('shake-heavy'); createSpeedLines(40,800);
     introLaunch.animate([
@@ -580,7 +609,7 @@
     b2.x=90; b2.y=-20; b2.vx=-2.5; b2.vy=0.8;
     bey1El.style.opacity='1'; bey2El.style.opacity='1';
     battleStarted = true; requestAnimationFrame(battleLoop);
-    spinSfx.currentTime = 0; spinSfx.play().catch(()=>{});
+    spinSfx.currentTime = 0; spinSfx.play();
     flash(300,'rgba(0,212,255,0.4)'); shake('shake-light');
   }
 
@@ -699,6 +728,7 @@
   }}
 
   function triggerClash(px,py) {
+    playAudio(boomSfx);
     shake('shake-heavy'); flash(400,'#fff');
     for(let i=0;i<3;i++){const r=document.createElement('div');
       r.style.cssText=`position:absolute;top:${py/340*100}%;left:${px/340*100}%;width:10px;height:10px;border-radius:50%;border:${3-i}px solid rgba(255,255,255,${0.9-i*0.2});transform:translate(-50%,-50%);pointer-events:none;z-index:20;`;
@@ -747,7 +777,16 @@
     for(const k in v)if(v[k]!==prev[k]){animD(els[k],v[k]);prev[k]=v[k];}}
   updateCD(); setInterval(updateCD,1000);
 
-  playIntro();
+  // Tap to start — sblocca audio e avvia intro
+  const tapScreen = $('tapScreen');
+  tapScreen.addEventListener('click', function startGame() {
+    tapScreen.removeEventListener('click', startGame);
+    // Sblocca audio context con un play silenzioso
+    allAudio.forEach(a => { a.volume = 0; a.play().then(() => a.pause()).catch(()=>{}); });
+    setTimeout(() => { allAudio.forEach(a => a.volume = 0); }, 50);
+    tapScreen.classList.add('hidden');
+    playIntro();
+  });
 })();
 </script>
 </body>
