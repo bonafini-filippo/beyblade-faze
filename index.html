@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BEYBLADE SHOWDOWN 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --blue: #00d4ff; --purple: #8b5cf6; --gold: #fbbf24;
+    --red: #ff3b5c; --deep-blue: #0a0e27; --deep-purple: #1a0533;
+  }
+  html, body {
+    height: 100%; overflow-x: hidden; background: #000;
+    font-family: 'Orbitron', system-ui, sans-serif; color: #fff;
+  }
+
+  /* ===== VIEWPORT ===== */
+  .viewport-lock {
+    width: 100%; margin: 0 auto; min-height: 100vh; position: relative; overflow: hidden;
+    background: linear-gradient(170deg, var(--deep-blue) 0%, #0f0a2e 25%, var(--deep-purple) 50%, #0d0b2e 75%, #050216 100%);
+  }
+  @media (min-width: 431px) { .viewport-lock { max-width: 430px; } }
+
+  /* ===== ANIMATED GRID FLOOR ===== */
+  .grid-floor {
+    position: absolute; bottom: 0; left: -10%; width: 120%; height: 40%;
+    background:
+      linear-gradient(90deg, rgba(0,212,255,0.05) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(0,212,255,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    transform: perspective(400px) rotateX(55deg);
+    transform-origin: bottom center;
+    opacity: 0.4;
+    animation: gridScroll 4s linear infinite;
+    z-index: 0; pointer-events: none;
+  }
+  @keyframes gridScroll { to { background-position: 0 40px; } }
+
+  /* ===== SCANLINES ===== */
+  .scanlines {
+    position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+  }
+
+  /* ===== CANVASES ===== */
+  #particles, #introCanvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+  }
+  #particles { z-index: 1; }
+  #introCanvas { z-index: 1; }
+
+  /* ===== INTRO ===== */
+  .intro-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center, #0a0e27 0%, #000 70%);
+    transition: opacity 0.8s ease; overflow: hidden;
+  }
+  .intro-overlay.fade-out { opacity: 0; pointer-events: none; }
+  .intro-overlay.hidden { display: none; }
+
+  /* Animated nebula blobs in intro */
+  .intro-nebula {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0;
+    animation: nebulaFloat 6s ease-in-out infinite;
+  }
+  .intro-nebula:nth-child(1) { width: 300px; height: 300px; background: var(--blue); top: 20%; left: 10%; animation-delay: 0s; }
+  .intro-nebula:nth-child(2) { width: 250px; height: 250px; background: var(--purple); bottom: 15%; right: 5%; animation-delay: 2s; }
+  .intro-nebula:nth-child(3) { width: 200px; height: 200px; background: var(--red); top: 50%; left: 50%; animation-delay: 4s; }
+  @keyframes nebulaFloat {
+    0%, 100% { opacity: 0.08; transform: scale(1) translate(0,0); }
+    50% { opacity: 0.2; transform: scale(1.3) translate(20px, -15px); }
+  }
+
+  .intro-text {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-family: 'Black Ops One', sans-serif; font-size: 64px; font-weight: 900;
+    text-transform: uppercase; opacity: 0; pointer-events: none;
+    text-align: center; line-height: 1.1; z-index: 10; white-space: nowrap;
+  }
+
+  /* ===== SPEED LINES / FLASH ===== */
+  .speed-lines {
+    position: fixed; inset: 0; z-index: 199; pointer-events: none; opacity: 0; overflow: hidden;
+  }
+  .speed-line-h {
+    position: absolute; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    will-change: transform;
+  }
+  .full-flash {
+    position: fixed; inset: 0; z-index: 201; background: #fff; opacity: 0;
+    pointer-events: none; will-change: opacity;
+  }
+
+  /* ===== CONTENT ===== */
+  .content {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 30px 20px 60px; min-height: 100vh;
+    opacity: 0; transition: opacity 1s ease;
+  }
+  .content.visible { opacity: 1; }
+
+  /* ===== LOGO ===== */
+  .logo-wrap {
+    margin: 10px 0; animation: logoFloat 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(0,212,255,0.5)) drop-shadow(0 0 40px rgba(139,92,246,0.3));
+  }
+  .logo-wrap img { width: 280px; height: auto; animation: logoPulse 2s ease-in-out infinite; }
+  @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes logoPulse {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 8px rgba(0,212,255,0.6)); }
+    50% { filter: brightness(1.3) drop-shadow(0 0 25px rgba(0,212,255,1)); }
+  }
+
+  /* ===== ARENA ===== */
+  .arena { position: relative; width: 340px; height: 340px; margin: 10px auto 20px; flex-shrink: 0; }
+  .stadium-ring {
+    position: absolute; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  }
+  .stadium-ring:nth-child(1) { width: 300px; height: 300px; border: 1px solid rgba(0,212,255,0.08); }
+  .stadium-ring:nth-child(2) { width: 220px; height: 220px; border: 1px solid rgba(139,92,246,0.12); animation: ringRotate 20s linear infinite; }
+  .stadium-ring:nth-child(3) { width: 140px; height: 140px; border: 1px solid rgba(0,212,255,0.06); animation: ringRotate 15s linear infinite reverse; }
+  .stadium-ring:nth-child(4) {
+    width: 310px; height: 310px; border: 2px solid rgba(0,212,255,0.15);
+    box-shadow: 0 0 40px rgba(0,212,255,0.08), inset 0 0 40px rgba(139,92,246,0.06);
+    animation: stadiumPulse 3s ease-in-out infinite;
+  }
+  /* Arena cross-hatch energy lines */
+  .stadium-ring:nth-child(5) {
+    width: 280px; height: 280px; border: none;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(0,212,255,0.04) 10%, transparent 20%);
+    animation: ringRotate 8s linear infinite;
+  }
+  @keyframes ringRotate { to { transform: translate(-50%,-50%) rotate(360deg); } }
+  @keyframes stadiumPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(0,212,255,0.08), inset 0 0 40px rgba(139,92,246,0.06); border-color: rgba(0,212,255,0.15); }
+    50% { box-shadow: 0 0 60px rgba(0,212,255,0.2), inset 0 0 60px rgba(139,92,246,0.15); border-color: rgba(0,212,255,0.3); }
+  }
+
+  #battleCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+
+  /* Beys */
+  .bey { position: absolute; top: 50%; left: 50%; z-index: 10; opacity: 0; will-change: transform; }
+  .bey img { width: 100%; height: 100%; object-fit: contain; will-change: transform; }
+  .bey1 { width: 90px; height: 90px; margin: -45px 0 0 -45px; }
+  .bey2 { width: 130px; height: 130px; margin: -65px 0 0 -65px; }
+
+  /* Energy auras */
+  .bey1::before, .bey1::after, .bey2::before, .bey2::after {
+    content: ''; position: absolute; border-radius: 50%; pointer-events: none;
+    will-change: transform, opacity;
+  }
+  .bey1::before {
+    top: -20%; left: -20%; width: 140%; height: 140%;
+    background: radial-gradient(circle, rgba(255,60,60,0.3) 0%, transparent 70%);
+    animation: auraPulse 0.8s ease-in-out infinite;
+  }
+  .bey1::after {
+    top: -30%; left: -30%; width: 160%; height: 160%;
+    border: 1px solid rgba(255,100,50,0.15);
+    animation: auraRing 1.2s ease-in-out infinite;
+  }
+  .bey2::before {
+    top: -20%; left: -20%; width: 140%; height: 140%;
+    background: radial-gradient(circle, rgba(0,150,255,0.3) 0%, transparent 70%);
+    animation: auraPulse 0.8s ease-in-out infinite 0.4s;
+  }
+  .bey2::after {
+    top: -30%; left: -30%; width: 160%; height: 160%;
+    border: 1px solid rgba(0,180,255,0.15);
+    animation: auraRing 1.2s ease-in-out infinite 0.6s;
+  }
+  @keyframes auraPulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.25); opacity: 1; } }
+  @keyframes auraRing { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.4); opacity: 0; } }
+
+  /* Impact */
+  .impact-text {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-family: 'Black Ops One', sans-serif; font-size: 36px; font-weight: 900;
+    z-index: 30; opacity: 0; pointer-events: none;
+    text-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 40px var(--gold), 0 0 80px var(--red);
+    color: var(--gold); letter-spacing: 6px;
+  }
+  .clash-layer { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
+
+  /* Shake */
+  .shake-light { animation: shakeLight 0.3s ease-out; }
+  .shake-heavy { animation: shakeHeavy 0.5s ease-out; }
+  @keyframes shakeLight {
+    0%, 100% { transform: translate(0,0); } 25% { transform: translate(-4px,2px); }
+    50% { transform: translate(3px,-3px); } 75% { transform: translate(-2px,4px); }
+  }
+  @keyframes shakeHeavy {
+    0% { transform: translate(0,0) scale(1); } 10% { transform: translate(-10px,6px) scale(1.01); }
+    20% { transform: translate(8px,-8px) scale(0.99); } 30% { transform: translate(-6px,10px) scale(1.02); }
+    40% { transform: translate(10px,-4px); } 50% { transform: translate(-8px,-6px); }
+    60% { transform: translate(6px,8px); } 70% { transform: translate(-4px,-10px); }
+    100% { transform: translate(0,0) scale(1); }
+  }
+
+  /* ===== COUNTDOWN ===== */
+  .countdown-section { width: 100%; margin: 15px 0; }
+  .countdown-label {
+    text-align: center; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 5px; color: var(--blue); margin-bottom: 14px;
+    text-shadow: 0 0 10px rgba(0,212,255,0.5);
+    animation: labelFlicker 4s ease-in-out infinite;
+  }
+  @keyframes labelFlicker {
+    0%, 100% { opacity: 0.8; } 50% { opacity: 1; }
+    70% { opacity: 0.6; } 72% { opacity: 1; }
+  }
+  .countdown { display: flex; justify-content: center; gap: 8px; }
+  .countdown-block { display: flex; flex-direction: column; align-items: center; min-width: 72px; }
+  .digit-container {
+    position: relative; width: 72px; height: 80px; overflow: hidden; border-radius: 10px;
+    background: linear-gradient(180deg, rgba(10,14,39,0.95), rgba(26,5,51,0.95));
+    border: 1px solid rgba(0,212,255,0.3);
+    box-shadow: 0 0 15px rgba(0,212,255,0.15), 0 0 30px rgba(139,92,246,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+    animation: borderPulse 3s ease-in-out infinite;
+  }
+  /* Corner accents */
+  .digit-container::before {
+    content: ''; position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px;
+    border-radius: 8px; border: 1px solid rgba(0,212,255,0.06); z-index: 1;
+  }
+  .digit-container::after {
+    content: ''; position: absolute; top: 50%; left: 5%; right: 5%; height: 1px;
+    background: rgba(0,212,255,0.15); z-index: 2;
+  }
+  @keyframes borderPulse {
+    0%, 100% { border-color: rgba(0,212,255,0.3); }
+    50% { border-color: rgba(0,212,255,0.6); box-shadow: 0 0 25px rgba(0,212,255,0.3), 0 0 50px rgba(139,92,246,0.2); }
+  }
+  .digit-value {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 42px; font-weight: 900; font-variant-numeric: tabular-nums;
+    background: linear-gradient(180deg, #fff, var(--blue));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 6px rgba(0,212,255,0.5));
+  }
+  .digit-value.flip-out { animation: flipOut 0.3s ease-in forwards; }
+  .digit-value.flip-in { animation: flipIn 0.3s ease-out forwards; }
+  @keyframes flipOut { to { transform: translateY(-20px) scaleY(0.5); opacity: 0; } }
+  @keyframes flipIn { from { transform: translateY(20px) scaleY(0.5); opacity: 0; } to { transform: translateY(0) scaleY(1); opacity: 1; } }
+  .digit-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-top: 8px; }
+  .countdown-separator {
+    font-size: 36px; font-weight: 900; color: var(--blue); align-self: flex-start;
+    padding-top: 16px; text-shadow: 0 0 10px rgba(0,212,255,0.5);
+    animation: sepPulse 1s ease-in-out infinite;
+  }
+  @keyframes sepPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* ===== INFO ===== */
+  .info-section { text-align: center; margin-top: 30px; padding: 0 10px; position: relative; }
+  .info-title {
+    font-size: 26px; font-weight: 900; letter-spacing: 3px;
+    font-family: 'Black Ops One', sans-serif;
+    background: linear-gradient(90deg, var(--gold), #fff, var(--gold));
+    background-size: 200% 100%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    animation: shimmer 3s linear infinite;
+    filter: drop-shadow(0 0 10px rgba(251,191,36,0.5));
+    line-height: 1.4;
+  }
+  @keyframes shimmer { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
+  .info-date {
+    font-size: 14px; color: var(--blue); margin-top: 14px; letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0,212,255,0.4);
+  }
+  .info-tagline {
+    font-size: 18px; font-weight: 700; margin-top: 18px;
+    text-shadow: 0 0 15px rgba(139,92,246,0.6), 0 0 30px rgba(0,212,255,0.3);
+    animation: tagPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes tagPulse {
+    0%, 100% { text-shadow: 0 0 15px rgba(139,92,246,0.6), 0 0 30px rgba(0,212,255,0.3); }
+    50% { text-shadow: 0 0 25px rgba(139,92,246,0.9), 0 0 50px rgba(0,212,255,0.5), 0 0 80px rgba(251,191,36,0.2); }
+  }
+  .info-time { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 12px; letter-spacing: 1px; }
+
+  /* ===== HYPE BADGE ===== */
+  .hype-badge {
+    display: inline-block; margin-top: 24px; padding: 10px 28px; border-radius: 30px;
+    border: 1px solid var(--gold);
+    background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(255,60,92,0.1));
+    font-size: 11px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--gold);
+    box-shadow: 0 0 20px rgba(251,191,36,0.15), inset 0 0 20px rgba(251,191,36,0.05);
+    animation: badgePulse 2s ease-in-out infinite;
+  }
+  @keyframes badgePulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(251,191,36,0.15); }
+    50% { box-shadow: 0 0 35px rgba(251,191,36,0.35), 0 0 60px rgba(255,60,92,0.15); transform: scale(1.02); }
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    width: 220px; height: 2px; margin: 22px auto; position: relative;
+    background: linear-gradient(90deg, transparent, var(--blue), var(--purple), var(--blue), transparent);
+  }
+  .divider::before {
+    content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px; background: var(--gold); border-radius: 50%;
+    box-shadow: 0 0 10px var(--gold); animation: dotPulse 2s ease-in-out infinite;
+  }
+  .divider::after {
+    content: ''; position: absolute; top: -1px; left: 0; width: 100%; height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+    animation: dividerSweep 3s ease-in-out infinite;
+  }
+  @keyframes dotPulse { 0%, 100% { box-shadow: 0 0 10px var(--gold); } 50% { box-shadow: 0 0 25px var(--gold), 0 0 50px var(--gold); } }
+  @keyframes dividerSweep { 0%, 100% { opacity: 0; transform: translateX(-100%); } 50% { opacity: 1; transform: translateX(100%); } }
+
+  /* Ambient orbs */
+  .glow-orb { position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; z-index: 0; }
+  .orb1 { width: 200px; height: 200px; background: var(--blue); top: 10%; left: -30%; animation: o1 8s ease-in-out infinite; opacity: 0.15; }
+  .orb2 { width: 250px; height: 250px; background: var(--purple); bottom: 20%; right: -40%; animation: o2 10s ease-in-out infinite; opacity: 0.12; }
+  .orb3 { width: 150px; height: 150px; background: var(--gold); top: 50%; left: 50%; animation: o3 6s ease-in-out infinite; opacity: 0.08; }
+  .orb4 { width: 180px; height: 180px; background: var(--red); top: 70%; left: 10%; animation: o4 9s ease-in-out infinite; opacity: 0.06; }
+  @keyframes o1 { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(40px,30px); opacity: 0.25; } }
+  @keyframes o2 { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-30px,-40px); opacity: 0.22; } }
+  @keyframes o3 { 0%, 100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.5); opacity: 0.18; } }
+  @keyframes o4 { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(30px,-20px); opacity: 0.12; } }
+
+  /* Floating energy particles (CSS only) */
+  .float-particle {
+    position: absolute; border-radius: 50%; pointer-events: none; z-index: 2;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-nebula"></div>
+  <div class="intro-nebula"></div>
+  <div class="intro-nebula"></div>
+  <canvas id="introCanvas"></canvas>
+  <div class="intro-text" id="introReady">PRONTI...</div>
+  <div class="intro-text" id="introCount" style="font-size:90px;"></div>
+  <div class="intro-text" id="introLaunch" style="color:var(--gold);font-size:72px;">LANCIO!</div>
+</div>
+<div class="speed-lines" id="speedLines"></div>
+<div class="full-flash" id="fullFlash"></div>
+
+<div class="scanlines"></div>
+<canvas id="particles"></canvas>
+
+<div class="viewport-lock" id="viewport">
+  <div class="grid-floor"></div>
+  <div class="glow-orb orb1"></div>
+  <div class="glow-orb orb2"></div>
+  <div class="glow-orb orb3"></div>
+  <div class="glow-orb orb4"></div>
+
+  <!-- CSS floating particles -->
+  <div class="float-particle" style="left:10%;width:3px;height:3px;background:var(--blue);animation-duration:8s;animation-delay:0s;bottom:0;"></div>
+  <div class="float-particle" style="left:25%;width:2px;height:2px;background:var(--purple);animation-duration:11s;animation-delay:2s;bottom:0;"></div>
+  <div class="float-particle" style="left:50%;width:4px;height:4px;background:var(--gold);animation-duration:9s;animation-delay:1s;bottom:0;"></div>
+  <div class="float-particle" style="left:70%;width:2px;height:2px;background:var(--blue);animation-duration:13s;animation-delay:4s;bottom:0;"></div>
+  <div class="float-particle" style="left:85%;width:3px;height:3px;background:var(--red);animation-duration:10s;animation-delay:3s;bottom:0;"></div>
+  <div class="float-particle" style="left:40%;width:2px;height:2px;background:var(--purple);animation-duration:12s;animation-delay:5s;bottom:0;"></div>
+
+  <div class="content" id="mainContent">
+    <div class="logo-wrap"><img src="logo.png" alt="Beyblade"></div>
+
+    <div class="arena" id="arena">
+      <div class="stadium-ring"></div>
+      <div class="stadium-ring"></div>
+      <div class="stadium-ring"></div>
+      <div class="stadium-ring"></div>
+      <div class="stadium-ring"></div>
+      <canvas id="battleCanvas" width="340" height="340"></canvas>
+      <div class="bey bey1" id="bey1"><img src="bey1.png" alt="Bey 1"></div>
+      <div class="bey bey2" id="bey2"><img src="bey2.png" alt="Bey 2"></div>
+      <div class="impact-text" id="impactText"></div>
+      <div class="clash-layer" id="clashLayer"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="countdown-section">
+      <div class="countdown-label">Il torneo inizia tra</div>
+      <div class="countdown">
+        <div class="countdown-block"><div class="digit-container"><div class="digit-value" id="days">00</div></div><div class="digit-label">Giorni</div></div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-block"><div class="digit-container"><div class="digit-value" id="hours">00</div></div><div class="digit-label">Ore</div></div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-block"><div class="digit-container"><div class="digit-value" id="minutes">00</div></div><div class="digit-label">Minuti</div></div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-block"><div class="digit-container"><div class="digit-value" id="seconds">00</div></div><div class="digit-label">Secondi</div></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="info-section">
+      <div class="info-title">&#9876;&#65039; BEYBLADE<br>SHOWDOWN &#9876;&#65039;</div>
+      <div class="info-date">Mercoled&igrave; 22 Aprile 2026</div>
+      <div class="info-tagline">Let it Rip!<br>Chi sar&agrave; il campione?</div>
+      <div class="info-time">Ore 21:30 &bull; Faze House</div>
+      <div class="hype-badge">INVITO ESCLUSIVO</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const viewport = $('viewport'), introOverlay = $('introOverlay');
+  const introReady = $('introReady'), introCount = $('introCount'), introLaunch = $('introLaunch');
+  const speedLinesEl = $('speedLines'), fullFlash = $('fullFlash'), mainContent = $('mainContent');
+  const bey1El = $('bey1'), bey2El = $('bey2');
+  const impactText = $('impactText'), clashLayer = $('clashLayer');
+  const battleCanvas = $('battleCanvas'), bCtx = battleCanvas.getContext('2d');
+
+  // ===== INTRO CANVAS =====
+  const iCanvas = $('introCanvas'), iCtx = iCanvas.getContext('2d');
+  let introRunning = true, introIntensity = 0.3;
+  function resizeIC() { iCanvas.width = window.innerWidth; iCanvas.height = window.innerHeight; }
+  resizeIC();
+  const iLines = [];
+  for (let i = 0; i < 80; i++) iLines.push({ a: Math.random()*Math.PI*2, spd: 1+Math.random()*3, len: 40+Math.random()*120, d: Math.random()*300, w: 0.5+Math.random()*2, c: ['0,212,255','139,92,246','251,191,36','255,255,255'][Math.floor(Math.random()*4)] });
+
+  function animIntro() {
+    if (!introRunning) return;
+    iCtx.clearRect(0, 0, iCanvas.width, iCanvas.height);
+    const cx = iCanvas.width/2, cy = iCanvas.height/2, mx = Math.max(iCanvas.width,iCanvas.height)*0.8;
+    for (const l of iLines) {
+      l.d += l.spd * introIntensity * 3;
+      if (l.d > mx) { l.d = 20+Math.random()*60; l.a = Math.random()*Math.PI*2; }
+      const al = Math.min(1, introIntensity) * (0.2+0.3*(l.d/mx));
+      iCtx.beginPath();
+      iCtx.moveTo(cx+Math.cos(l.a)*l.d, cy+Math.sin(l.a)*l.d);
+      iCtx.lineTo(cx+Math.cos(l.a)*(l.d+l.len*introIntensity), cy+Math.sin(l.a)*(l.d+l.len*introIntensity));
+      iCtx.strokeStyle = `rgba(${l.c},${al})`; iCtx.lineWidth = l.w; iCtx.stroke();
+    }
+    requestAnimationFrame(animIntro);
+  }
+  animIntro();
+
+  // ===== BACKGROUND PARTICLES =====
+  const pCanvas = $('particles'), pCtx = pCanvas.getContext('2d');
+  function resizePC() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
+  resizePC();
+  window.addEventListener('resize', () => { resizePC(); resizeIC(); });
+
+  const bgP = [];
+  for (let i = 0; i < 60; i++) bgP.push({ x: Math.random()*pCanvas.width, y: Math.random()*pCanvas.height, vx: (Math.random()-0.5)*0.4, vy: -Math.random()*0.7-0.2, sz: Math.random()*2.5+0.5, life: Math.random()*200+100, ml: 0, c: ['0,212,255','139,92,246','251,191,36','255,255,255'][Math.floor(Math.random()*4)] });
+  bgP.forEach(p => p.ml = p.life);
+
+  function animBg() {
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    for (const p of bgP) {
+      p.x += p.vx; p.y += p.vy; p.life--;
+      if (p.life <= 0 || p.y < -10) { p.x = Math.random()*pCanvas.width; p.y = pCanvas.height+10; p.life = p.ml; }
+      const a = (p.life/p.ml)*0.5;
+      pCtx.beginPath(); pCtx.arc(p.x, p.y, p.sz, 0, Math.PI*2);
+      pCtx.fillStyle = `rgba(${p.c},${a})`; pCtx.fill();
+      pCtx.beginPath(); pCtx.arc(p.x, p.y, p.sz*3, 0, Math.PI*2);
+      pCtx.fillStyle = `rgba(${p.c},${a*0.12})`; pCtx.fill();
+    }
+    requestAnimationFrame(animBg);
+  }
+  animBg();
+
+  // ===== UTILS =====
+  function createSpeedLines(n, dur) {
+    speedLinesEl.innerHTML = ''; speedLinesEl.style.opacity = '1';
+    for (let i = 0; i < n; i++) {
+      const l = document.createElement('div'); l.className = 'speed-line-h';
+      const y = Math.random()*100, w = 30+Math.random()*60;
+      l.style.cssText = `top:${y}%;width:${w}%;left:${50-w/2}%;opacity:${0.3+Math.random()*0.7};`;
+      l.animate([{transform:'scaleX(0)',opacity:0},{transform:'scaleX(1)',opacity:0.8,offset:0.3},{transform:'scaleX(1.5)',opacity:0}],{duration:dur,delay:Math.random()*200,fill:'forwards'});
+      speedLinesEl.appendChild(l);
+    }
+    setTimeout(() => speedLinesEl.style.opacity = '0', dur+200);
+  }
+  function flash(dur, color) {
+    fullFlash.style.background = color||'#fff';
+    fullFlash.animate([{opacity:0},{opacity:1,offset:0.1},{opacity:0}],{duration:dur,fill:'forwards'});
+  }
+  function shake(type) {
+    viewport.classList.remove('shake-light','shake-heavy'); void viewport.offsetWidth;
+    viewport.classList.add(type);
+    setTimeout(() => viewport.classList.remove(type), type==='shake-heavy'?500:300);
+  }
+  function showAnimeText(el, text, color, size, dur) {
+    return new Promise(resolve => {
+      el.textContent = text; el.style.color = color||'#fff';
+      if (size) el.style.fontSize = size+'px';
+      el.style.textShadow = `0 0 30px ${color||'#fff'}, 0 0 60px ${color||'#fff'}, 0 0 120px ${color||'#fff'}`;
+      el.animate([
+        {opacity:0,transform:'translate(-50%,-50%) scale(3) rotate(-5deg)',filter:'blur(10px)'},
+        {opacity:1,transform:'translate(-50%,-50%) scale(1) rotate(0)',filter:'blur(0)',offset:0.3},
+        {opacity:1,transform:'translate(-50%,-50%) scale(1.05)',filter:'blur(0)',offset:0.7},
+        {opacity:0,transform:'translate(-50%,-50%) scale(0.8)',filter:'blur(4px)'}
+      ],{duration:dur,fill:'forwards',easing:'cubic-bezier(0.16,1,0.3,1)'}).onfinish = resolve;
+    });
+  }
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ===== INTRO =====
+  async function playIntro() {
+    await delay(600); introIntensity = 0.4;
+    shake('shake-light'); createSpeedLines(15,1500); introIntensity = 0.8;
+    await showAnimeText(introReady,'PRONTI...','#00d4ff',56,2000);
+    await delay(300); introIntensity = 1.2;
+    for (let n=3; n>=1; n--) {
+      introIntensity = 1.2+(3-n)*0.8; shake('shake-light');
+      flash(200,'rgba(0,212,255,0.3)');
+      await showAnimeText(introCount,n.toString(),'#fff',120,700);
+      await delay(100);
+    }
+    introIntensity = 4; shake('shake-heavy'); createSpeedLines(40,800);
+    introLaunch.animate([
+      {opacity:0,transform:'translate(-50%,-50%) scale(5) rotate(-10deg)',filter:'blur(20px)'},
+      {opacity:1,transform:'translate(-50%,-50%) scale(1) rotate(2deg)',filter:'blur(0)',offset:0.2},
+      {opacity:1,transform:'translate(-50%,-50%) scale(1.1) rotate(-1deg)',filter:'blur(0)',offset:0.6},
+      {opacity:0,transform:'translate(-50%,-50%) scale(1.5)',filter:'blur(8px)'}
+    ],{duration:1200,fill:'forwards',easing:'cubic-bezier(0.16,1,0.3,1)'});
+    await delay(900);
+    flash(800,'#fff'); introRunning = false;
+    introOverlay.classList.add('fade-out'); mainContent.classList.add('visible');
+    await delay(300); introOverlay.classList.add('hidden');
+    launchBeys();
+    await delay(600); flash(200,'rgba(0,212,255,0.3)'); shake('shake-light');
+  }
+
+  // ===== LAUNCH =====
+  function launchBeys() {
+    bey1El.querySelector('img').style.animation = 'none';
+    bey2El.querySelector('img').style.animation = 'none';
+    b1.x=-90; b1.y=20; b1.vx=2.5; b1.vy=-0.8;
+    b2.x=90; b2.y=-20; b2.vx=-2.5; b2.vy=0.8;
+    bey1El.style.opacity='1'; bey2El.style.opacity='1';
+    battleStarted = true; requestAnimationFrame(battleLoop);
+    flash(300,'rgba(0,212,255,0.4)'); shake('shake-light');
+  }
+
+  // ===== PHYSICS =====
+  const CX=170, CY=170, ARENA_R=130, BEY1_R=30, BEY2_R=40, MAX_SPEED=5, MAX_CLASHES=5;
+  let battlePhase='fighting', knockoutFrame=0, loser=null, victoryFrame=0, victorySpinSpeed=0;
+  let battleStarted=false, spinAngle1=0, spinAngle2=0, lastFT=0;
+  const SPIN1=1320, SPIN2=1440;
+  let trails=[], sparks=[], clashCount=0, cooldown=0;
+  const impactWords=['CRASH!','BANG!','BOOM!','SCONTRO!','POW!'];
+  const b1={x:-80,y:0,vx:0.8,vy:-0.6}, b2={x:80,y:0,vx:-0.8,vy:0.6};
+
+  function clamp(b,mx){const s=Math.sqrt(b.vx*b.vx+b.vy*b.vy);if(s>mx){b.vx=(b.vx/s)*mx;b.vy=(b.vy/s)*mx;}}
+  function sep(){const dx=b2.x-b1.x,dy=b2.y-b1.y,d=Math.sqrt(dx*dx+dy*dy),m=BEY1_R+BEY2_R+2;if(d<m&&d>0.01){const nx=dx/d,ny=dy/d,p=(m-d)*0.5;b1.x-=nx*p;b1.y-=ny*p;b2.x+=nx*p;b2.y+=ny*p;}}
+
+  function battleLoop(ts) {
+    if(!battleStarted) return;
+    if(!lastFT) lastFT=ts;
+    const dt=Math.min((ts-lastFT)/1000,0.05); lastFT=ts;
+    spinAngle1+=SPIN1*dt; spinAngle2-=SPIN2*dt;
+    bey1El.querySelector('img').style.transform=`rotate(${spinAngle1}deg)`;
+    bey2El.querySelector('img').style.transform=`rotate(${spinAngle2}deg)`;
+    if(battlePhase==='fighting') updateFight();
+    else if(battlePhase==='knockout') updateKO();
+    else if(battlePhase==='victory') updateVic();
+    drawFX(); requestAnimationFrame(battleLoop);
+  }
+
+  function updateFight() {
+    for(const b of[b1,b2]){const dx=-b.x,dy=-b.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+      b.vx+=(dx/d)*0.04*Math.pow(d/ARENA_R,1.5); b.vy+=(dy/d)*0.04*Math.pow(d/ARENA_R,1.5);
+      b.vx+=(-dy/d)*0.008; b.vy+=(dx/d)*0.008;}
+    b1.vx*=0.997; b1.vy*=0.997; b2.vx*=0.997; b2.vy*=0.997;
+    if(Math.random()<0.03){b1.vx+=(Math.random()-0.5)*0.8;b1.vy+=(Math.random()-0.5)*0.8;}
+    if(Math.random()<0.03){b2.vx+=(Math.random()-0.5)*0.8;b2.vy+=(Math.random()-0.5)*0.8;}
+    clamp(b1,MAX_SPEED); clamp(b2,MAX_SPEED);
+    b1.x+=b1.vx; b1.y+=b1.vy; b2.x+=b2.vx; b2.y+=b2.vy;
+    wallB(b1,BEY1_R); wallB(b2,BEY2_R); sep();
+    if(cooldown>0){cooldown--;}else{
+      const dx=b2.x-b1.x,dy=b2.y-b1.y,d=Math.sqrt(dx*dx+dy*dy),mn=BEY1_R+BEY2_R;
+      if(d<mn+3&&d>0.1){const nx=dx/d,ny=dy/d; clashCount++;
+        if(clashCount>=MAX_CLASHES){
+          triggerClash(CX+(b1.x+b2.x)/2,CY+(b1.y+b2.y)/2);
+          loser=Math.random()>0.5?'bey1':'bey2';
+          const lb=loser==='bey1'?b1:b2, dir=loser==='bey1'?-1:1;
+          lb.vx=nx*dir*14; lb.vy=ny*dir*14-5;
+          battlePhase='knockout'; knockoutFrame=0; flash(600,'#fff'); shake('shake-heavy');
+        } else {
+          const v1n=b1.vx*nx+b1.vy*ny, v2n=b2.vx*nx+b2.vy*ny;
+          b1.vx+=(v2n-v1n)*nx*1.4; b1.vy+=(v2n-v1n)*ny*1.4;
+          b2.vx+=(v1n-v2n)*nx*1.4; b2.vy+=(v1n-v2n)*ny*1.4;
+          b1.vx+=ny*0.5; b1.vy-=nx*0.5; b2.vx-=ny*0.5; b2.vy+=nx*0.5;
+          clamp(b1,MAX_SPEED); clamp(b2,MAX_SPEED);
+          triggerClash(CX+(b1.x+b2.x)/2,CY+(b1.y+b2.y)/2); cooldown=40;
+        }
+      }
+    }
+    bey1El.style.transform=`translate(${b1.x}px,${b1.y}px)`;
+    bey2El.style.transform=`translate(${b2.x}px,${b2.y}px)`;
+    trails.push({x:CX+b1.x,y:CY+b1.y,life:18,c:'255,80,50'},{x:CX+b2.x,y:CY+b2.y,life:18,c:'0,180,255'});
+    if(trails.length>100) trails.splice(0,trails.length-100);
+  }
+
+  function updateKO() {
+    knockoutFrame++;
+    const lb=loser==='bey1'?b1:b2, lE=loser==='bey1'?bey1El:bey2El;
+    const wb=loser==='bey1'?b2:b1, wE=loser==='bey1'?bey2El:bey1El, wr=loser==='bey1'?BEY2_R:BEY1_R;
+    lb.x+=lb.vx; lb.y+=lb.vy; lb.vy+=0.25;
+    lE.style.transform=`translate(${lb.x}px,${lb.y}px) scale(${Math.max(0,1-knockoutFrame*0.012)})`;
+    lE.style.opacity=String(Math.max(0,1-knockoutFrame*0.018));
+    const dx=-wb.x,dy=-wb.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+    wb.vx+=(dx/d)*0.03; wb.vy+=(dy/d)*0.03; wb.vx*=0.97; wb.vy*=0.97;
+    wb.x+=wb.vx; wb.y+=wb.vy; wallB(wb,wr);
+    wE.style.transform=`translate(${wb.x}px,${wb.y}px)`;
+    trails.push({x:CX+wb.x,y:CY+wb.y,life:18,c:loser==='bey1'?'0,180,255':'255,80,50'});
+    if(trails.length>100) trails.splice(0,trails.length-100);
+    if(knockoutFrame>90){battlePhase='victory';victoryFrame=0;victorySpinSpeed=loser==='bey1'?-SPIN2:SPIN1;}
+  }
+
+  function updateVic() {
+    victoryFrame++;
+    const wb=loser==='bey1'?b2:b1, wE=loser==='bey1'?bey2El:bey1El, wI=wE.querySelector('img');
+    wb.x*=0.97; wb.y*=0.97; wE.style.transform=`translate(${wb.x}px,${wb.y}px)`;
+    const tot=600; if(victoryFrame<tot){const t=victoryFrame/tot,e=1-t*t;
+      const sp=victorySpinSpeed/60*e;
+      if(loser==='bey1'){spinAngle2+=sp;wI.style.transform=`rotate(${spinAngle2}deg)`;}
+      else{spinAngle1+=sp;wI.style.transform=`rotate(${spinAngle1}deg)`;}}
+  }
+
+  function wallB(b,r){const d=Math.sqrt(b.x*b.x+b.y*b.y),lim=ARENA_R-r;if(d>lim&&d>0){
+    const nx=b.x/d,ny=b.y/d;b.x=nx*lim;b.y=ny*lim;
+    const dot=b.vx*nx+b.vy*ny;b.vx-=1.6*dot*nx;b.vy-=1.6*dot*ny;
+    b.vx+=ny*0.2;b.vy-=nx*0.2;clamp(b,MAX_SPEED);
+    for(let i=0;i<3;i++){const a=Math.atan2(ny,nx)+(Math.random()-0.5)*1.2;
+      sparks.push({x:CX+b.x,y:CY+b.y,vx:-Math.cos(a)*(1.5+Math.random()),vy:-Math.sin(a)*(1.5+Math.random()),sz:1+Math.random(),life:10,ml:10,c:'0,212,255',st:1});}
+  }}
+
+  function triggerClash(px,py) {
+    shake('shake-heavy'); flash(400,'#fff');
+    for(let i=0;i<3;i++){const r=document.createElement('div');
+      r.style.cssText=`position:absolute;top:${py/340*100}%;left:${px/340*100}%;width:10px;height:10px;border-radius:50%;border:${3-i}px solid rgba(255,255,255,${0.9-i*0.2});transform:translate(-50%,-50%);pointer-events:none;z-index:20;`;
+      clashLayer.appendChild(r);
+      r.animate([{width:'10px',height:'10px',opacity:1},{width:'350px',height:'350px',opacity:0}],{duration:600+i*200,delay:i*80,fill:'forwards'}).onfinish=()=>r.remove();}
+    const fc=document.createElement('div');
+    fc.style.cssText=`position:absolute;top:${py/340*100}%;left:${px/340*100}%;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,1),rgba(0,212,255,0.6) 40%,transparent 70%);transform:translate(-50%,-50%);pointer-events:none;z-index:21;`;
+    clashLayer.appendChild(fc);
+    fc.animate([{width:'10px',height:'10px',opacity:1},{width:'300px',height:'300px',opacity:0}],{duration:400,fill:'forwards'}).onfinish=()=>fc.remove();
+    const w=impactWords[clashCount%impactWords.length];
+    impactText.textContent=w; impactText.style.color=clashCount%2===0?'var(--gold)':'var(--red)';
+    impactText.animate([
+      {opacity:0,transform:'translate(-50%,-50%) scale(4) rotate(-8deg)',filter:'blur(8px)'},
+      {opacity:1,transform:'translate(-50%,-50%) scale(1) rotate(2deg)',filter:'blur(0)',offset:0.25},
+      {opacity:1,transform:'translate(-50%,-50%) scale(1.1) rotate(-1deg)',offset:0.6},
+      {opacity:0,transform:'translate(-50%,-50%) scale(0.5) rotate(5deg)',filter:'blur(4px)'}
+    ],{duration:800,fill:'forwards',easing:'cubic-bezier(0.16,1,0.3,1)'});
+    for(let i=0;i<35;i++){const a=(Math.PI*2*i)/35+(Math.random()-0.5)*0.4,sp=3+Math.random()*7,sz=1.5+Math.random()*4;
+      const cs=['255,200,50','0,212,255','255,60,60','255,255,255','139,92,246'];
+      sparks.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,sz,life:20+Math.random()*18,ml:38,c:cs[Math.floor(Math.random()*cs.length)],st:Math.random()>0.4?1:0});}
+    createSpeedLines(20,400);
+  }
+
+  // ===== DRAW FX =====
+  function drawFX() {
+    bCtx.clearRect(0,0,340,340);
+    for(let i=trails.length-1;i>=0;i--){const t=trails[i];t.life--;if(t.life<=0){trails.splice(i,1);continue;}
+      const a=t.life/18,sz=3.5*a;
+      bCtx.beginPath();bCtx.arc(t.x,t.y,sz,0,Math.PI*2);bCtx.fillStyle=`rgba(${t.c},${a*0.5})`;bCtx.fill();
+      bCtx.beginPath();bCtx.arc(t.x,t.y,sz*3,0,Math.PI*2);bCtx.fillStyle=`rgba(${t.c},${a*0.1})`;bCtx.fill();}
+    for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.x+=s.vx;s.y+=s.vy;s.vx*=0.95;s.vy*=0.95;s.vy+=0.08;s.life--;
+      if(s.life<=0){sparks.splice(i,1);continue;}const a=s.life/s.ml;
+      if(s.st){bCtx.beginPath();bCtx.moveTo(s.x,s.y);bCtx.lineTo(s.x-s.vx*3,s.y-s.vy*3);bCtx.strokeStyle=`rgba(${s.c},${a})`;bCtx.lineWidth=s.sz*0.6;bCtx.stroke();}
+      else{bCtx.beginPath();bCtx.arc(s.x,s.y,s.sz*a,0,Math.PI*2);bCtx.fillStyle=`rgba(${s.c},${a})`;bCtx.fill();}
+      bCtx.beginPath();bCtx.arc(s.x,s.y,s.sz*2*a,0,Math.PI*2);bCtx.fillStyle=`rgba(${s.c},${a*0.2})`;bCtx.fill();}
+  }
+
+  // ===== COUNTDOWN =====
+  const TARGET=new Date('2026-04-22T21:30:00+01:00');
+  const els={d:$('days'),h:$('hours'),m:$('minutes'),s:$('seconds')};let prev={};
+  function animD(el,v){el.classList.remove('flip-in','flip-out');el.classList.add('flip-out');
+    setTimeout(()=>{el.textContent=v;el.classList.remove('flip-out');el.classList.add('flip-in');},280);}
+  function updateCD(){let d=Math.max(0,TARGET-new Date());const v={
+    d:String(Math.floor(d/864e5)).padStart(2,'0'),h:String(Math.floor((d%864e5)/36e5)).padStart(2,'0'),
+    m:String(Math.floor((d%36e5)/6e4)).padStart(2,'0'),s:String(Math.floor((d%6e4)/1e3)).padStart(2,'0')};
+    for(const k in v)if(v[k]!==prev[k]){animD(els[k],v[k]);prev[k]=v[k];}}
+  updateCD(); setInterval(updateCD,1000);
+
+  playIntro();
+})();
+</script>
+</body>
+</html>
