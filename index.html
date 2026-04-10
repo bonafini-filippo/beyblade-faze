@@ -576,7 +576,7 @@
   let battlePhase='fighting', knockoutFrame=0, loser=null, victoryFrame=0, victorySpinSpeed=0;
   let battleStarted=false, spinAngle1=0, spinAngle2=0, lastFT=0;
   const SPIN1=1320, SPIN2=1440;
-  let trails=[], sparks=[], clashCount=0, cooldown=0;
+  let trails=[], sparks=[], clashCount=0, cooldown=0, noClashTimer=0;
   const impactWords=['CRASH!','BANG!','BOOM!','SCONTRO!','POW!'];
   const b1={x:-80,y:0,vx:0.8,vy:-0.6}, b2={x:80,y:0,vx:-0.8,vy:0.6};
 
@@ -600,8 +600,12 @@
   }
 
   function updateFight() {
+    noClashTimer++;
+    // Se non si scontrano da ~5s (300 frame), aumenta gravita' verso centro
+    const extraPull = noClashTimer > 300 ? Math.min((noClashTimer - 300) / 300, 1) * 0.08 : 0;
     for(const b of[b1,b2]){const dx=-b.x,dy=-b.y,d=Math.sqrt(dx*dx+dy*dy)||1;
-      b.vx+=(dx/d)*0.04*Math.pow(d/ARENA_R,1.5); b.vy+=(dy/d)*0.04*Math.pow(d/ARENA_R,1.5);
+      const basePull = 0.04 * Math.pow(d/ARENA_R, 1.5) + extraPull;
+      b.vx+=(dx/d)*basePull; b.vy+=(dy/d)*basePull;
       b.vx+=(-dy/d)*0.008; b.vy+=(dx/d)*0.008;}
     b1.vx*=0.997; b1.vy*=0.997; b2.vx*=0.997; b2.vy*=0.997;
     if(Math.random()<0.03){b1.vx+=(Math.random()-0.5)*0.8;b1.vy+=(Math.random()-0.5)*0.8;}
@@ -611,7 +615,7 @@
     wallB(b1,BEY1_R); wallB(b2,BEY2_R); sep();
     if(cooldown>0){cooldown--;}else{
       const dx=b2.x-b1.x,dy=b2.y-b1.y,d=Math.sqrt(dx*dx+dy*dy),mn=BEY1_R+BEY2_R;
-      if(d<mn+3&&d>0.1){const nx=dx/d,ny=dy/d; clashCount++;
+      if(d<mn+3&&d>0.1){const nx=dx/d,ny=dy/d; clashCount++; noClashTimer=0;
         if(clashCount>=MAX_CLASHES){
           triggerClash(CX+(b1.x+b2.x)/2,CY+(b1.y+b2.y)/2);
           loser=Math.random()>0.5?'bey1':'bey2';
