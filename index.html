@@ -557,10 +557,10 @@
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   // ===== AUDIO =====
-  const sfx2 = new Audio('2.mp3');
+  const tickSfx = { 3: new Audio('3.mp3'), 2: new Audio('2.mp3'), 1: new Audio('1.mp3') };
   const bgm = new Audio('bgm.mp3'); bgm.loop = true; bgm.volume = 0.1;
   const boomSfx = new Audio('boom.mp3');
-  const allAudio = [sfx2, bgm, boomSfx];
+  const allAudio = [tickSfx[3], tickSfx[2], tickSfx[1], bgm, boomSfx];
   allAudio.forEach(a => a.preload = 'auto');
 
   function playAudio(a) { a.currentTime = 0; a.play(); }
@@ -576,7 +576,7 @@
       introIntensity = 1.2+(3-n)*0.8; shake('shake-light');
       bgm.volume = 0.15 + (3-n) * 0.1;
       flash(200,'rgba(0,212,255,0.3)');
-      playAudio(sfx2);
+      playAudio(tickSfx[n]);
       await showAnimeText(introCount,n.toString(),'#00d4ff',80,1000);
       await delay(150);
     }
