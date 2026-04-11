@@ -770,12 +770,12 @@
   updateCD(); setInterval(updateCD,1000);
 
   // Tap to start — sblocca audio e avvia intro
+  // Sblocca audio con AudioContext al tap (non tocca i file)
   const tapScreen = $('tapScreen');
   tapScreen.addEventListener('click', function startGame() {
     tapScreen.removeEventListener('click', startGame);
-    // Sblocca audio context con un play silenzioso
-    allAudio.forEach(a => { a.volume = 0; a.play().then(() => a.pause()).catch(()=>{}); });
-    setTimeout(() => { allAudio.forEach(a => a.volume = 0); }, 50);
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    ctx.resume().then(() => ctx.close());
     tapScreen.classList.add('hidden');
     playIntro();
   });
